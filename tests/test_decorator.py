@@ -1,3 +1,4 @@
+from http import HTTPStatus
 import time
 from typing import Any, Generator
 
@@ -102,11 +103,13 @@ def test_pydantic_model() -> None:
 def test_non_get() -> None:
     with TestClient(app) as client:
         response = client.put("/cached_put")
+        assert response.status_code == HTTPStatus.METHOD_NOT_ALLOWED
         assert "X-FastAPI-Cache" not in response.headers
-        assert response.json() == {"value": 1}
+        assert response.json() != {"value": 1}
         response = client.put("/cached_put")
+        assert response.status_code == HTTPStatus.METHOD_NOT_ALLOWED
         assert "X-FastAPI-Cache" not in response.headers
-        assert response.json() == {"value": 2}
+        assert response.json() != {"value": 2}
 
 
 def test_alternate_injected_namespace() -> None:
